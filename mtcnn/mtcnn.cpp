@@ -341,31 +341,3 @@ void mtcnn::detect(ncnn::Mat& img_, std::vector<Bbox>& finalBbox_){
     finalBbox_ = thirdBbox_;
 }
 
-int main(int argc, char** argv)
-{
-    const char* imagepath = argv[1];
-
-    cv::Mat cv_img = cv::imread(imagepath, CV_LOAD_IMAGE_COLOR);
-    if (cv_img.empty())
-    {
-        fprintf(stderr, "cv::imread %s failed\n", imagepath);
-        return -1;
-    }
-    std::vector<Bbox> finalBbox;
-    mtcnn mm;
-    ncnn::Mat ncnn_img = ncnn::Mat::from_pixels(cv_img.data, ncnn::Mat::PIXEL_BGR2RGB, cv_img.cols, cv_img.rows);
-    struct timeval  tv1,tv2;
-    struct timezone tz1,tz2;
-    gettimeofday(&tv1,&tz1);
-    mm.detect(ncnn_img, finalBbox);
-    gettimeofday(&tv2,&tz2);
-    printf( "%s = %g ms \n ", "Detection All time", getElapse(&tv1, &tv2) );
-    for(vector<Bbox>::iterator it=finalBbox.begin(); it!=finalBbox.end();it++){
-        if((*it).exist){
-            rectangle(cv_img, Point((*it).x1, (*it).y1), Point((*it).x2, (*it).y2), Scalar(0,0,255), 2,8,0);
-            for(int num=0;num<5;num++)circle(cv_img,Point((int)*(it->ppoint+num), (int)*(it->ppoint+num+5)),3,Scalar(0,255,255), -1);
-        }
-    }
-    imwrite("result.jpg",cv_img);
-    return 0;
-}
